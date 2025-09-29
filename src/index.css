@@ -1,0 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --font-family-inter: "Inter", sans-serif;
+
+  --color-base-foreground: #18181b;
+  --color-base-card-foreground: #09090b;
+  --color-base-border: #e4e4e7;
+  --color-base-chart-1: #8942fe;
+  --color-base-chart-2: #5a22a3;
+  --color-base-chart-3: #351267;
+  --color-base-destructive: #dc2626;
+  --color-base-muted: #f4f4f5;
+  --color-base-tartiary: #999999;
+  --color-base-gray-light: #b3b3b3;
+  --color-base-blue-100: #f8fafc;
+  --color-base-blue: #2fc7f7;
+  --color-base-muted-foreground: #71717a;
+  --color-base-primary-foreground: #fafafa;
+
+  --shadow-primary: 0px 1px 2px 0px #0000000f, 0px 1px 3px 0px #0000001a;
+  --shadow-outline: 0px 1px 2px 0px #0000000d;
+  --shadow-toast: 0px 4px 6px -2px #0000000d, 0px 10px 15px -3px #0000001a;
+  --shadow-toggle-track: 0px 4px 6px -2px #0000000d,
+    0px 10px 15px -3px #0000001a;
+
+  --background-image-auth: url("/assets/images/auth-bg.png");
+}
+
+@layer base {
+  body {
+    @apply bg-base-muted/60 text-base-foreground font-family-inter;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+@utility flex-between {
+  @apply flex items-center justify-between;
+}
+
+/* Hide scrollbar utility for scrollable containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
