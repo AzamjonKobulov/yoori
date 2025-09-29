@@ -92,16 +92,27 @@ export default function CommercialOfferDetails() {
 
     async function editOffer() {
         try {
-            await apiCP.patch(`/offer/v1/${navigationState.id}/`, {
-                // template_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                // manager_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                // client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                name: editableTemplateName,
-                status: editableStatus,
-                description: introduction,
-                is_template: false,
-                is_draft: false,
-            });
+            if (templateName) {
+                await apiCP.patch(`/offer/v1/${navigationState.id}/`, {
+                    // template_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    // manager_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    // client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    name: editableTemplateName,
+                    description: introduction,
+                    is_draft: editableStatus == "Черновик",
+                });
+            } else {
+                await apiCP.patch(`/offer/v1/${navigationState.id}/`, {
+                    // template_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    // manager_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    // client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    name: editableTemplateName,
+                    status: editableStatus,
+                    description: introduction,
+                    is_template: false,
+                    is_draft: false,
+                });
+            }
         } catch (err) {
             console.log(err);
         }
@@ -249,9 +260,9 @@ export default function CommercialOfferDetails() {
             const resProducts = await res.data.map((item: any) => {
                 return {
                     id: item.id,
-                    name: item.name,
+                    name: item.product_name,
                     amount: String(item.amount),
-                    cost: String(item.price),
+                    cost: String(item.product_price),
                     costAmount: String(item.total_price),
                 };
             });
@@ -338,6 +349,22 @@ export default function CommercialOfferDetails() {
         }
     }
 
+    async function deleteTemplate() {
+        try {
+            await apiCP.delete(`/offer/v1/${navigationState.id}/`);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async function copyTemplate() {
+        try {
+            await apiCP.post(`/offer/v1/${navigationState.id}/copy/`);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     // Determine page mode based on navigation state or URL parameters
     const pageMode: PageMode =
         navigationState.isCommercialOffer || urlType === "commercial-offer"
@@ -352,6 +379,12 @@ export default function CommercialOfferDetails() {
         isNew: navigationState.isNewTemplate || false,
         isCopy: navigationState.isTemplateCopy || false,
     };
+
+    useEffect(() => {
+        console.log(`isNewTemplate: ${isNewTemplate}`);
+        console.log(`isTemplateCopy: ${isTemplateCopy}`);
+        console.log(`pageData.isCopy: ${pageData.isCopy}`);
+    }, [pageData.isCopy])
 
     // Legacy variables for backward compatibility (can be removed after refactoring)
     const templateName = pageData.name;
@@ -1215,6 +1248,7 @@ export default function CommercialOfferDetails() {
 
     const handleSaveChanges = () => {
         if (isNewTemplate) {
+            editOffer();
             // For new templates, save and navigate to templates page
             setToastTitle("Шаблон создан");
             setToastText("Новый шаблон успешно создан!");
@@ -1377,7 +1411,8 @@ export default function CommercialOfferDetails() {
     };
 
     // Template dropdown handlers
-    const handleCopyTemplate = () => {
+    const handleCopyTemplate = async () => {
+        await copyTemplate();
         // Create a copy of the current template with modified name
         const copiedTemplate = {
             templateName: `Копия ${templateName}`,
@@ -1396,11 +1431,12 @@ export default function CommercialOfferDetails() {
         setShowDeleteTemplateModal(true);
     };
 
-    const handleConfirmDeleteTemplate = () => {
+    const handleConfirmDeleteTemplate = async () => {
         setToastTitle("Шаблон удален");
         setToastText("Шаблон успешно удален!");
         setShowToast(true);
         setShowDeleteTemplateModal(false);
+        await deleteTemplate();
         // Navigate back to templates page after deletion
         setTimeout(() => {
             navigate("/templates");
@@ -1468,7 +1504,10 @@ export default function CommercialOfferDetails() {
                 <div className="flex items-center gap-3">
                     {/* Back button */}
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={() => {
+                            if (isNewTemplate || pageData.isCopy) deleteTemplate();
+                            navigate(-1)
+                        }}
                         className="hover:bg-base-border/50 rounded-md p-1 transition-colors duration-200"
                     >
                         <svg
