@@ -16,7 +16,8 @@ export interface AmountField {
   value: string;
 }
 
-const fieldTypes = [
+const allFieldTypes = [
+  { type: "discount", label: "Размер скидки, %" },
   { type: "simplified_tax", label: "Налог УСН, %" },
   { type: "vat_tax", label: "Налог НДС" },
 ];
@@ -108,14 +109,7 @@ export default function EditAmount({
   onClose,
   onSave,
 }: EditAmountProps) {
-  const [fields, setFields] = useState<AmountField[]>([
-    {
-      id: "default-discount",
-      type: "discount",
-      label: "Размер скидки, %",
-      value: "",
-    },
-  ]);
+  const [fields, setFields] = useState<AmountField[]>([]);
   const [showAddDropdown, setShowAddDropdown] = useState(false);
   const dropdownRef = useClickOutside<HTMLDivElement>({
     callback: () => onClose(),
@@ -124,8 +118,16 @@ export default function EditAmount({
 
   const { shouldOpenUp } = useDropdownPosition(isOpen, dropdownRef);
 
-  const handleAddField = (type: "simplified_tax" | "vat_tax") => {
-    const fieldType = fieldTypes.find((ft) => ft.type === type);
+  // Check if a field type is already added
+  const isFieldTypeAdded = (type: string) => {
+    return fields.some((field) => field.type === type);
+  };
+
+  const handleAddField = (type: "discount" | "simplified_tax" | "vat_tax") => {
+    // Don't add if field type is already added
+    if (isFieldTypeAdded(type)) return;
+
+    const fieldType = allFieldTypes.find((ft) => ft.type === type);
     if (!fieldType) return;
 
     const newField: AmountField = {
@@ -155,14 +157,7 @@ export default function EditAmount({
   };
 
   const handleCancel = () => {
-    setFields([
-      {
-        id: "default-discount",
-        type: "discount",
-        label: "Размер скидки, %",
-        value: "",
-      },
-    ]);
+    setFields([]);
     onClose();
   };
 
@@ -238,29 +233,27 @@ export default function EditAmount({
                           />
                         )}
                       </div>
-                      {field.id !== "default-discount" && (
-                        <Button
-                          variant="outline"
-                          onClick={() => handleRemoveField(field.id)}
-                          className="size-9 text-red-500 hover:text-red-700 !p-0"
+                      <Button
+                        variant="outline"
+                        onClick={() => handleRemoveField(field.id)}
+                        className="size-9 text-red-500 hover:text-red-700 !p-0"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
                         >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M2 4H14M12.6667 4V13.3333C12.6667 14 12 14.6667 11.3333 14.6667H4.66667C4 14.6667 3.33333 14 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2 6 1.33333 6.66667 1.33333H9.33333C10 1.33333 10.6667 2 10.6667 2.66667V4M6.66667 7.33333V11.3333M9.33333 7.33333V11.3333"
-                              stroke="currentColor"
-                              strokeWidth="1.33"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </Button>
-                      )}
+                          <path
+                            d="M2 4H14M12.6667 4V13.3333C12.6667 14 12 14.6667 11.3333 14.6667H4.66667C4 14.6667 3.33333 14 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2 6 1.33333 6.66667 1.33333H9.33333C10 1.33333 10.6667 2 10.6667 2.66667V4M6.66667 7.33333V11.3333M9.33333 7.33333V11.3333"
+                            stroke="currentColor"
+                            strokeWidth="1.33"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -302,19 +295,31 @@ export default function EditAmount({
                       exit={{ opacity: 0, y: -10 }}
                       className="absolute top-full left-0 right-0 mt-1 bg-white border border-base-border rounded-md shadow-lg z-10"
                     >
-                      {fieldTypes.map((fieldType) => (
-                        <button
-                          key={fieldType.type}
-                          onClick={() =>
-                            handleAddField(
-                              fieldType.type as "simplified_tax" | "vat_tax"
-                            )
-                          }
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-base-border/50 first:rounded-t-md last:rounded-b-md"
-                        >
-                          {fieldType.label}
-                        </button>
-                      ))}
+                      {allFieldTypes.map((fieldType) => {
+                        const isAdded = isFieldTypeAdded(fieldType.type);
+                        return (
+                          <button
+                            key={fieldType.type}
+                            onClick={() =>
+                              handleAddField(
+                                fieldType.type as
+                                  | "discount"
+                                  | "simplified_tax"
+                                  | "vat_tax"
+                              )
+                            }
+                            disabled={isAdded}
+                            className={`w-full text-left px-3 py-2 text-sm first:rounded-t-md last:rounded-b-md ${
+                              isAdded
+                                ? "text-base-muted-foreground cursor-not-allowed opacity-50"
+                                : "hover:bg-base-border/50"
+                            }`}
+                          >
+                            {fieldType.label}
+                            {isAdded && " (уже добавлено)"}
+                          </button>
+                        );
+                      })}
                     </motion.div>
                   )}
                 </AnimatePresence>
