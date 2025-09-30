@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "../ui/Button";
 import { useClickOutside, useDropdownPosition } from "../../hooks";
 
-interface EditAmountProps {
+export interface EditAmountProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (fields: AmountField[]) => void;
@@ -176,7 +176,7 @@ export default function EditAmount({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`absolute w-80 right-0 bottom-0 mb-10 z-50 bg-white border border-base-border rounded-md shadow-md p-4 min-w-[300px] ${
+            className={`absolute w-80 right-0 bottom-0 mb-10 bg-white border border-base-border rounded-md shadow-md p-4 min-w-[300px] ${
               shouldOpenUp ? "bottom-full mb-2" : "top-full mt-2"
             }`}
           >

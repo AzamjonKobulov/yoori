@@ -1012,7 +1012,7 @@ export default function CommercialOfferDetails() {
   const handleEditProductField = async (
     groupId: string,
     productId: string,
-    field: "name" | "amount" | "cost",
+    field: string,
     newValue: string
   ) => {
     let newProduct = {};
