@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import TablePagination from "../components/ui/TablePagination";
 import { AnimatePresence, motion } from "framer-motion";
 import ToastSuccess from "../components/ui/ToastSuccess";
-import { apiCP } from "../http/apis";
 
 interface TemplateRow {
   id: string;
@@ -36,10 +35,356 @@ interface TemplateRow {
   }>;
 }
 
+// Sample template data
+const initialTableData: TemplateRow[] = [
+  {
+    id: "1",
+    name: "Шаблон КП",
+    status: "Черновик",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Базовый вариант",
+        isRecommended: false,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Основные услуги",
+            amount: "1",
+            cost: "50000",
+            costAmount: "50000",
+          },
+          {
+            id: "row-2",
+            name: "Дополнительные услуги",
+            amount: "2",
+            cost: "15000",
+            costAmount: "30000",
+          },
+        ],
+        productGroups: [],
+      },
+    ],
+  },
+  {
+    id: "2",
+    name: "Уютный Уголок",
+    status: "Черновик",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Стандартный пакет",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Дизайн интерьера",
+            amount: "1",
+            cost: "80000",
+            costAmount: "80000",
+          },
+          {
+            id: "row-2",
+            name: "Консультация",
+            amount: "3",
+            cost: "5000",
+            costAmount: "15000",
+          },
+        ],
+        productGroups: [
+          {
+            id: "group-1",
+            name: "Мебель",
+            products: [
+              {
+                id: "product-1",
+                name: "Диван",
+                amount: "1",
+                cost: "45000",
+                costAmount: "45000",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "3",
+    name: "Яркий Путь",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Премиум решение",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Комплексное решение",
+            amount: "1",
+            cost: "120000",
+            costAmount: "120000",
+          },
+        ],
+        productGroups: [
+          {
+            id: "group-1",
+            name: "Основные услуги",
+            products: [
+              {
+                id: "product-1",
+                name: "Проектирование",
+                amount: "1",
+                cost: "60000",
+                costAmount: "60000",
+              },
+              {
+                id: "product-2",
+                name: "Реализация",
+                amount: "1",
+                cost: "60000",
+                costAmount: "60000",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "variant-2",
+        name: "Эконом вариант",
+        isRecommended: false,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Базовые услуги",
+            amount: "1",
+            cost: "60000",
+            costAmount: "60000",
+          },
+        ],
+        productGroups: [],
+      },
+    ],
+  },
+  {
+    id: "4",
+    name: "Экологическая Идея",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Эко-решение",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Экологический аудит",
+            amount: "1",
+            cost: "40000",
+            costAmount: "40000",
+          },
+          {
+            id: "row-2",
+            name: "Рекомендации",
+            amount: "1",
+            cost: "20000",
+            costAmount: "20000",
+          },
+        ],
+        productGroups: [],
+      },
+    ],
+  },
+  {
+    id: "5",
+    name: "Инновации Завтрашнего Дня",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Технологическое решение",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Исследование",
+            amount: "1",
+            cost: "100000",
+            costAmount: "100000",
+          },
+          {
+            id: "row-2",
+            name: "Разработка",
+            amount: "1",
+            cost: "150000",
+            costAmount: "150000",
+          },
+        ],
+        productGroups: [
+          {
+            id: "group-1",
+            name: "Технологии",
+            products: [
+              {
+                id: "product-1",
+                name: "AI интеграция",
+                amount: "1",
+                cost: "80000",
+                costAmount: "80000",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "6",
+    name: "Простор для Жизни",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Жилой комплекс",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Планировка",
+            amount: "1",
+            cost: "70000",
+            costAmount: "70000",
+          },
+        ],
+        productGroups: [],
+      },
+    ],
+  },
+  {
+    id: "7",
+    name: "Разумный Выбор",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Оптимальное решение",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Анализ потребностей",
+            amount: "1",
+            cost: "30000",
+            costAmount: "30000",
+          },
+          {
+            id: "row-2",
+            name: "Подбор решения",
+            amount: "1",
+            cost: "50000",
+            costAmount: "50000",
+          },
+        ],
+        productGroups: [],
+      },
+    ],
+  },
+  {
+    id: "8",
+    name: "Идеи для Творчества",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Креативный пакет",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Концепция",
+            amount: "1",
+            cost: "40000",
+            costAmount: "40000",
+          },
+          {
+            id: "row-2",
+            name: "Реализация",
+            amount: "1",
+            cost: "80000",
+            costAmount: "80000",
+          },
+        ],
+        productGroups: [
+          {
+            id: "group-1",
+            name: "Креативные услуги",
+            products: [
+              {
+                id: "product-1",
+                name: "Дизайн",
+                amount: "1",
+                cost: "60000",
+                costAmount: "60000",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "9",
+    name: "Эпоха Перемен",
+    status: "Создан",
+    variants: [
+      {
+        id: "variant-1",
+        name: "Трансформация",
+        isRecommended: true,
+        isHidden: false,
+        tableRows: [
+          {
+            id: "row-1",
+            name: "Анализ текущего состояния",
+            amount: "1",
+            cost: "25000",
+            costAmount: "25000",
+          },
+          {
+            id: "row-2",
+            name: "План изменений",
+            amount: "1",
+            cost: "35000",
+            costAmount: "35000",
+          },
+          {
+            id: "row-3",
+            name: "Реализация",
+            amount: "1",
+            cost: "90000",
+            costAmount: "90000",
+          },
+        ],
+        productGroups: [],
+      },
+    ],
+  },
+];
+
 export default function Templates() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState(initialTableData);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -49,45 +394,6 @@ export default function Templates() {
   const [toastText, setToastText] = useState("Шаблон обновлен!");
   const selectedCount = selectedRows.size;
   const processedTemplatesRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-        async function start() {
-            const userInfo = await apiCP.get("/user/v1/current/info");
-            apiCP.defaults.baseURL = `https://${userInfo.data.domain}`;
-
-            getTemplates();
-        }
-
-        start();
-    }, []);
-
-  async function getTemplates() {
-    try {
-      const res = await apiCP.get("/offer/v1/template/list");
-      setData(res.data.items.map((item:any) => {
-        return {
-          id: item.id,
-          name: item.name,
-          status: item.is_draft ? "Черновик" : "Создан"
-        }
-      }))
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  async function createTemplate(name:any) {
-    try {
-      const res = await apiCP.post("/offer/v1/create/", {
-        name,
-        is_template: true,
-        is_draft: true
-      })
-      return res.data;
-    } catch (err) {
-      console.log(err);
-    }
-  }
 
   // Handle adding new template when returning from details page
   useEffect(() => {
@@ -193,7 +499,6 @@ export default function Templates() {
   const handleNavigateToDetails = (template: TemplateRow) => {
     navigate("/details?type=template", {
       state: {
-        id: template.id,
         templateName: template.name,
         templateStatus: template.status,
         templateVariants: template.variants || [],
@@ -202,14 +507,21 @@ export default function Templates() {
   };
 
   // Handle creating new template
-  const handleCreateNewTemplate = async () => {
-    const template = await createTemplate("Шаблон Коммерческого предложения");
+  const handleCreateNewTemplate = () => {
     navigate("/details?type=template", {
       state: {
-        id: template.id,
-        templateName: "Шаблон Коммерческого предложения",
+        templateName: "Шаблон Коммерческого предложения 1",
         templateStatus: "Черновик",
-        templateVariants: [],
+        templateVariants: [
+          {
+            id: "variant-1",
+            name: "Вариант 1",
+            isRecommended: false,
+            isHidden: false,
+            tableRows: [],
+            productGroups: [],
+          },
+        ],
         isNewTemplate: true,
       },
     });
