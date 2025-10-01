@@ -34,6 +34,7 @@ export default function CreateCommercialOffer({
                 apiCP.defaults.baseURL = `https://${userInfo.data.domain}`;
             }
 
+            getTemplates();
             getClients();
         }
 
@@ -44,15 +45,27 @@ export default function CreateCommercialOffer({
       console.log(client);
     }, [client])
 
-    async function createOffer() {
+    async function createOffer(name:any) {
         try {
-          await apiCP.post("/offer/v1/create/", {
-            name,
-            client_id: client.id,
-            manager: manager?.id,
-            template: template?.id,
-            description: ""
-          });
+            if (template?.id) {
+                const res = (await apiCP.post(`/offer/v1/${template.id}/copy/`)).data;
+                await apiCP.patch(`/offer/v1/${res.id}/`, {
+                    name,
+                    status: "created",
+                    // template_id: template.id,
+                    client_id: client.id,
+                    is_template: false,
+                    is_draft: false,
+                });
+            } else {
+                await apiCP.post("/offer/v1/create/", {
+                  name,
+                  client_id: client.id,
+                  manager: manager?.id,
+                  template: template?.id,
+                  description: ""
+                });
+            }
         } catch (err) {
             console.log(err);
         }
@@ -94,6 +107,16 @@ export default function CreateCommercialOffer({
             const res = await apiCP.get("client/v1/list");
             setClients(res.data.items);
             setClientOptions(res.data.items.map((item: any) => item.name));
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async function getTemplates() {
+        try {
+            const res = await apiCP.get(`/offer/v1/template/list`);
+            setTemplates(res.data.items);
+            setTemplateOptions(res.data.items.map((item:any) => item.name));
         } catch (err) {
             console.log(err);
         }
@@ -191,7 +214,9 @@ export default function CreateCommercialOffer({
 
     // Handle template selection
     const handleTemplateSelect = (template: string) => {
+        console.log(template);
         setSelectedTemplate(template);
+        setTemplate(templates.filter((item:any) => item.name == template)[0]);
         setIsTemplateOpen(false);
         setTemplateSearchTerm(""); // Clear search when selecting
     };
@@ -223,7 +248,7 @@ export default function CreateCommercialOffer({
     // Handle create commercial offer
     const handleCreateOffer = async () => {
         // Close this modal and navigate to details page
-        await createOffer();
+        await createOffer(name);
         onClose();
 
         const res = await apiCP.get("/offer/v1/list");

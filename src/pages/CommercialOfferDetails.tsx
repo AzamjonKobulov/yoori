@@ -97,11 +97,13 @@ export default function CommercialOfferDetails() {
                     // template_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     // manager_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     // client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    status: editableStatus,
                     name: editableTemplateName,
                     description: introduction,
                     is_draft: editableStatus == "Черновик",
                 });
             } else {
+                console.log(editableStatus);
                 await apiCP.patch(`/offer/v1/${navigationState.id}/`, {
                     // template_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     // manager_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -359,7 +361,7 @@ export default function CommercialOfferDetails() {
 
     async function copyTemplate() {
         try {
-            await apiCP.post(`/offer/v1/${navigationState.id}/copy/`);
+            return (await apiCP.post(`/offer/v1/${navigationState.id}/copy/`)).data;
         } catch (err) {
             console.log(err);
         }
@@ -1272,6 +1274,7 @@ export default function CommercialOfferDetails() {
                 });
             }, 1000);
         } else if (isTemplateCopy) {
+            editOffer();
             // For template copies, save and navigate to templates page
             // Don't show toast here - it will be shown in Templates page
 
@@ -1412,9 +1415,10 @@ export default function CommercialOfferDetails() {
 
     // Template dropdown handlers
     const handleCopyTemplate = async () => {
-        await copyTemplate();
+        const res = await copyTemplate();
         // Create a copy of the current template with modified name
         const copiedTemplate = {
+            id: res.id,
             templateName: `Копия ${templateName}`,
             templateStatus: "Черновик",
             templateVariants: variants,
