@@ -10,6 +10,7 @@ import TablePagination from "../components/ui/TablePagination";
 import { apiCP } from "../http/apis";
 
 export default function CommercialOffers() {
+    const [offers, setOffers] = useState([]);
 
     useEffect(() => {
         async function config() {
@@ -24,18 +25,17 @@ export default function CommercialOffers() {
     async function getOffers() {
         try {
             const res = await apiCP.get("/offer/v1/list");
-            const res1 = await apiCP.get("/offer/v1/template/list");
-            const templates = res1.data.items.map((item:any) => item.id);
-            const offers = res.data.items.map((item: any) => {
+            setOffers(res.data.items);
+            setData(
+                res.data.items.map((item: any) => {
                     return {
                         ...item,
                         manager: item.manager_name,
                         client: item.client_name,
                         price: item.option_prices[0],
                     };
-                }
+                })
             );
-            setData(offers.filter((offer:any) => !templates.includes(offer.id)));
         } catch (err) {
             console.log(err);
         }
